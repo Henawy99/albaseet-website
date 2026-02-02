@@ -23,8 +23,8 @@ export default function Home() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Hero Section - Shorter to show products below */}
+      <section className="relative min-h-[65vh] flex items-center justify-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-hero-pattern">
           {/* Animated Gradient Orbs */}
@@ -63,7 +63,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 relative z-10 pt-32 pb-20">
+        <div className="container mx-auto px-4 relative z-10 pt-24 pb-8">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -75,13 +75,13 @@ export default function Home() {
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
-                className="mb-8"
+                className="mb-4"
               >
-                <div className="bg-primary rounded-2xl p-4 md:p-6 shadow-2xl shadow-primary/50 inline-block animate-float">
+                <div className="bg-primary rounded-xl p-3 md:p-4 shadow-2xl shadow-primary/50 inline-block animate-float">
                   <img 
                     src="/logo.png" 
                     alt="ALBASEET" 
-                    className="h-20 md:h-28 w-auto"
+                    className="h-14 md:h-20 w-auto"
                   />
                 </div>
               </motion.div>
@@ -91,21 +91,21 @@ export default function Home() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.5, type: 'spring' }}
-                className="inline-flex items-center gap-2 bg-dark-100 border border-primary/30 rounded-full px-4 py-2 mb-8"
+                className="inline-flex items-center gap-2 bg-dark-100 border border-primary/30 rounded-full px-3 py-1.5 mb-4"
               >
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                <span className="text-sm text-dark-600">
+                <span className="text-xs text-dark-600">
                   {language === 'en' ? 'Premium Sports Equipment' : 'معدات رياضية فاخرة'}
                 </span>
               </motion.div>
 
               {/* Main Title */}
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-display tracking-wider mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display tracking-wider mb-3">
                 <span className="hero-text">{t('hero.title')}</span>
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl md:text-2xl text-dark-600 mb-10 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-dark-600 mb-6 max-w-2xl mx-auto">
                 {t('hero.subtitle')}
               </p>
 
@@ -129,27 +129,12 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Scroll Indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="absolute bottom-10 left-1/2 -translate-x-1/2"
-            >
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-6 h-10 border-2 border-dark-400 rounded-full flex justify-center pt-2"
-              >
-                <div className="w-1 h-2 bg-primary rounded-full" />
-              </motion.div>
-            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-dark">
+      <section className="py-12 bg-dark">
         <div className="container mx-auto px-4">
           <SectionTitle
             title={language === 'en' ? 'SHOP BY SPORT' : 'تسوق حسب الرياضة'}
