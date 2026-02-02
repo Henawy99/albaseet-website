@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion'
 import { useLanguage } from './context/LanguageContext'
 import { useAnalyticsStore } from './store/analyticsStore'
+import { useProductStore } from './store/productStore'
 
 // Layout
 import Header from './components/layout/Header'
@@ -68,6 +69,14 @@ function AppContent() {
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
   const { trackPageView } = useAnalyticsStore()
+  const { initialize, initialized } = useProductStore()
+
+  // Initialize products from Supabase
+  useEffect(() => {
+    if (!initialized) {
+      initialize()
+    }
+  }, [initialize, initialized])
 
   // Track page views (only for non-admin pages)
   useEffect(() => {
