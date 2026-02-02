@@ -16,6 +16,7 @@ import Category from './pages/Category'
 import Product from './pages/Product'
 import Contact from './pages/Contact'
 import AllProducts from './pages/AllProducts'
+import Cart from './pages/Cart'
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin'
@@ -38,6 +39,7 @@ function AnimatedRoutes() {
         <Route path="/category/:categoryId/:subcategoryId" element={<Category />} />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/products" element={<AllProducts />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/contact" element={<Contact />} />
 
         {/* Admin Routes */}
