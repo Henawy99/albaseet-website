@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useDropzone } from 'react-dropzone'
 import { useLanguage } from '../../context/LanguageContext'
 import { useProductStore, categories, subcategories } from '../../store/productStore'
+import { uploadProductImage, updateProduct as updateProductInDB } from '../../services/albaseetService'
+import { getImageUrl } from '../../config/supabase'
 import toast from 'react-hot-toast'
 import { 
   HiOutlineSearch, 
@@ -20,16 +22,30 @@ import {
 function ProductImageDropzone({ product, onImageDrop }) {
   const { language } = useLanguage()
   const [isDragOver, setIsDragOver] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const onDrop = useCallback(async (acceptedFiles) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0]
-      const imageUrl = URL.createObjectURL(file)
-      onImageDrop(product.id, imageUrl)
-      toast.success(language === 'en' ? 'Image added!' : 'تمت إضافة الصورة!')
+      setIsUploading(true)
+      
+      try {
+        // Upload to Supabase Storage
+        const imagePath = await uploadProductImage(file, product.id)
+        
+        // Update product with new image path
+        await onImageDrop(product.id, imagePath, product.images)
+        
+        toast.success(language === 'en' ? 'Image uploaded!' : 'تم رفع الصورة!')
+      } catch (error) {
+        console.error('Upload error:', error)
+        toast.error(language === 'en' ? 'Upload failed!' : 'فشل الرفع!')
+      } finally {
+        setIsUploading(false)
+      }
     }
     setIsDragOver(false)
-  }, [product.id, onImageDrop, language])
+  }, [product.id, product.images, onImageDrop, language])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -49,9 +65,16 @@ function ProductImageDropzone({ product, onImageDrop }) {
         isDragActive || isDragOver
           ? 'ring-2 ring-primary ring-offset-2 ring-offset-dark-100 scale-110'
           : ''
-      }`}
+      } ${isUploading ? 'pointer-events-none' : ''}`}
     >
       <input {...getInputProps()} />
+      
+      {/* Loading overlay */}
+      {isUploading && (
+        <div className="absolute inset-0 bg-dark/80 flex items-center justify-center z-10">
+          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
       
       {product.images.length > 0 ? (
         <>
@@ -89,21 +112,39 @@ function ProductImageDropzone({ product, onImageDrop }) {
 
 export default function AdminProducts() {
   const { language, t } = useLanguage()
-  const { getAllProducts, deleteProduct, updateProduct } = useProductStore()
+  const { getAllProducts, deleteProduct, refreshProducts } = useProductStore()
   
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
-  // Handle image drop on product
-  const handleImageDrop = useCallback((productId, imageUrl) => {
-    const product = getAllProducts().find(p => p.id === productId)
-    if (product) {
-      updateProduct(productId, {
-        images: [imageUrl, ...product.images.slice(0, 4)] // Add new image as first, keep up to 5
-      })
+  // Handle image drop on product - uploads to Supabase
+  const handleImageDrop = useCallback(async (productId, imagePath, currentImages) => {
+    try {
+      // Get current image paths (not URLs)
+      const currentPaths = (currentImages || [])
+        .map(img => {
+          // Extract path from URL if it's a full URL
+          if (img.includes('albaseet-images/')) {
+            return img.split('albaseet-images/')[1]
+          }
+          return img
+        })
+        .filter(p => p && !p.startsWith('blob:'))
+      
+      // Add new image path as first, keep up to 5
+      const newImages = [imagePath, ...currentPaths.slice(0, 4)]
+      
+      // Update in Supabase
+      await updateProductInDB(productId, { images: newImages })
+      
+      // Refresh product list
+      refreshProducts()
+    } catch (error) {
+      console.error('Failed to update product images:', error)
+      throw error
     }
-  }, [getAllProducts, updateProduct])
+  }, [refreshProducts])
 
   const products = useMemo(() => {
     let filtered = getAllProducts()
